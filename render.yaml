@@ -1,0 +1,54 @@
+services:
+  # Backend API
+  - type: web
+    name: lesociety-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: PORT
+        value: 10000
+
+  # Frontend
+  - type: web
+    name: lesociety-frontend
+    runtime: node
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_DEV_API_URL
+        fromService:
+          type: web
+          name: lesociety-backend
+          property: host
+      - key: NEXT_PUBLIC_DEV_SOCKET_URL
+        fromService:
+          type: web
+          name: lesociety-backend
+          property: host
+      - key: NEXT_PUBLIC_MAPBOX_TOKEN
+        sync: false
+
+  # Admin Panel
+  - type: web
+    name: lesociety-admin
+    runtime: node
+    rootDir: admin
+    buildCommand: npm install && npm run build
+    startCommand: npx serve -s build_live -l 10000
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
