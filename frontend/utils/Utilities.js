@@ -100,12 +100,18 @@ export const apiRequest = async (args = {}, retries) => {
 
   for (let i = 0; i < maxRetries; i++) {
     try {
+      const headers = {
+        ...(requestArgs?.headers || {}),
+      };
+      
+      // Only add Authorization header if we have a token
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+      
       return await axios({
         ...requestArgs,
-        headers: {
-          ...(requestArgs?.headers || {}),
-          Authorization: `Bearer ${token || ""}`,
-        },
+        headers,
         timeout: requestTimeout,
       });
     } catch (error) {
